@@ -1,5 +1,22 @@
 import ProjectDescription
 
+let defaultInfoPlist: InfoPlist = .extendingDefault(
+    with: [
+      "UILaunchStoryboardName": "LaunchScreen.storyboard",
+              "UIApplicationSceneManifest": [
+                  "UIApplicationSupportsMultipleScenes": false,
+                  "UISceneConfigurations": [
+                      "UIWindowSceneSessionRoleApplication": [
+                          [
+                              "UISceneConfigurationName": "Default Configuration",
+                              "UISceneDelegateClassName": "$(PRODUCT_MODULE_NAME).SceneDelegate"
+                          ],
+                      ]
+                  ]
+              ],
+          ]
+      )
+
 let project = Project(
     name: "onboardingProject",
     targets: [
@@ -8,26 +25,15 @@ let project = Project(
             destinations: .iOS,
             product: .app,
             bundleId: "io.tuist.onboardingProject",
-            infoPlist: .extendingDefault(
-                            with: [
-                              "UILaunchStoryboardName": "LaunchScreen.storyboard",
-                                      "UIApplicationSceneManifest": [
-                                          "UIApplicationSupportsMultipleScenes": false,
-                                          "UISceneConfigurations": [
-                                              "UIWindowSceneSessionRoleApplication": [
-                                                  [
-                                                      "UISceneConfigurationName": "Default Configuration",
-                                                      "UISceneDelegateClassName": "$(PRODUCT_MODULE_NAME).SceneDelegate"
-                                                  ],
-                                              ]
-                                          ]
-                                      ],
-                                  ]
-                              ),
-
+            infoPlist: defaultInfoPlist,
             sources: ["onboardingProject/Sources/**"],
             resources: ["onboardingProject/Resources/**"],
-            dependencies: []
+            dependencies: [],
+            coreDataModels: [
+                CoreDataModel.coreDataModel(
+                    "onboardingProject/Sources/CoreDataModel/onboardingProject.xcdatamodeld"
+                )
+            ]
         ),
         .target(
             name: "onboardingProjectTests",
