@@ -15,13 +15,16 @@ import Then
 
 final class SignUpViewController: UIViewController {
     
+    private var disposeBag = DisposeBag()
+    
     private let userNameLabel = UILabel().then { label in
         label.text = "사용자 이름"
     }
     
     private let userNameTextField = UITextField().then { textField in
-        textField.borderStyle = .line
-        textField.backgroundColor = .systemBackground
+        textField.layer.borderWidth = 1
+        textField.layer.borderColor = UIColor.textFieldBorderColor.cgColor
+        textField.layer.cornerRadius = 10
     }
     
     private let emailLabel = UILabel().then { label in
@@ -29,7 +32,9 @@ final class SignUpViewController: UIViewController {
     }
     
     private let emailTextField = UITextField().then { textField in
-        textField.borderStyle = .line
+        textField.layer.borderWidth = 1
+        textField.layer.borderColor = UIColor.textFieldBorderColor.cgColor
+        textField.layer.cornerRadius = 10
     }
     
     private let passwordLabel = UILabel().then { label in
@@ -37,7 +42,9 @@ final class SignUpViewController: UIViewController {
     }
     
     private let passwordTextField = UITextField().then { textField in
-        textField.borderStyle = .line
+        textField.layer.borderWidth = 1
+        textField.layer.borderColor = UIColor.textFieldBorderColor.cgColor
+        textField.layer.cornerRadius = 10
     }
     
     private let passwordCheckLabel = UILabel().then { label in
@@ -45,12 +52,16 @@ final class SignUpViewController: UIViewController {
     }
     
     private let passwordCheckTextField = UITextField().then { textField in
-        textField.borderStyle = .line
+//        textField.borderStyle = .line
+        textField.layer.borderWidth = 1
+        textField.layer.borderColor = UIColor.textFieldBorderColor.cgColor
+        textField.layer.cornerRadius = 10
     }
     
     private let signUpButton = UIButton().then { button in
         button.setTitle("가입하기", for: .normal)
-        button.backgroundColor = .blue
+        button.backgroundColor = .buttonColor
+        button.layer.cornerRadius = 10
     }
     
     override func viewDidLoad() {
@@ -138,6 +149,11 @@ extension SignUpViewController {
     
     private func bindUI() {
         
+        signUpButton.rx.tap.asDriver()
+            .drive(onNext: { [weak self] in
+                guard let self else { return }
+                self.navigationController?.popViewController(animated: true)
+            }).disposed(by: disposeBag)
     }
 }
 
