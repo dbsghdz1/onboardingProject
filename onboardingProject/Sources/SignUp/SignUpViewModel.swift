@@ -22,8 +22,9 @@ protocol ViewModelType {
 final class SignUpViewModel: ViewModelType {
     
     private let coreDataManager = CoreDataManager.shared
-
+    
     struct Input {
+        let userName: Observable<String>
         let emailText: Observable<String>
         let passwordText: Observable<String>
         let passwordCheckText: Observable<String>
@@ -61,17 +62,30 @@ final class SignUpViewModel: ViewModelType {
             }
         
         let signUpButtonTapped = input.signUpButtonTapped
-            .withLatestFrom(Observable.combineLatest(input.emailText, passwordCheckText))
-            .flatMapLatest { [weak self] email, isPasswordMatching -> Observable<Bool> in
+            .withLatestFrom(
+                Observable.combineLatest(
+                    input.emailText,
+                    input.passwordCheckText,
+                    input.passwordText,
+                    input.userName
+                )
+            )
+            .flatMapLatest { [weak self] values -> Observable<Bool> in
                 guard let self = self else { return Observable.just(false) }
+                let email = values.0
+                let passwordCheck = values.1
+                let password = values.2
+                let userName = values.3
+                
                 if !self.emailCheck(email) {
                     return Observable.just(false)
                 }
-
-                if !isPasswordMatching {
+                
+                if passwordCheck != password || password.isEmpty {
                     return Observable.just(false)
                 }
-                coreDataManager.createUser(name: "", email: email)
+                
+                self.coreDataManager.createUser(name: userName, email: email, password: password)
                 return Observable.just(true)
             }
             .asDriver(onErrorJustReturn: false)

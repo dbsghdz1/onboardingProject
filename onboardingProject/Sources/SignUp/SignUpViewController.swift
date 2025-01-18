@@ -197,6 +197,8 @@ extension SignUpViewController {
     private func bindUI() {
         
         let input = SignUpViewModel.Input(
+            userName: emailTextField.rx.controlEvent(.editingDidEnd)
+                .withLatestFrom(emailTextField.rx.text.orEmpty),
             emailText: emailTextField.rx.controlEvent(.editingDidEnd)
                 .withLatestFrom(emailTextField.rx.text.orEmpty),
             passwordText: passwordTextField.rx.controlEvent(.editingDidEnd)
