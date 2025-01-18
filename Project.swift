@@ -28,7 +28,12 @@ let project = Project(
             infoPlist: defaultInfoPlist,
             sources: ["onboardingProject/Sources/**"],
             resources: ["onboardingProject/Resources/**"],
-            dependencies: [],
+            dependencies: [
+                .external(name: "RxSwift"),
+                .external(name: "Then"),
+                .external(name: "SnapKit"),
+                .external(name: "RxCocoa")
+            ],
             coreDataModels: [
                 CoreDataModel.coreDataModel(
                     "onboardingProject/Sources/CoreDataModel/onboardingProject.xcdatamodeld"
