@@ -22,14 +22,17 @@ final class LoginViewController: UIViewController {
     }
     
     private let emailView = UIView().then { view in
-        view.backgroundColor = UIColor(red: 239/250, green: 239/250, blue: 239/250, alpha: 1.0)
+        view.backgroundColor = .customGrayColor
     }
     
     private let passwordView = UIView().then { view in
-        view.backgroundColor = UIColor(red: 239/250, green: 239/250, blue: 239/250, alpha: 1.0)
+        view.backgroundColor = .customGrayColor
     }
     
-    private let emailImage = UIImageView(image: UIImage(systemName: "envelope"))
+    private let emailImage = UIImageView().then { imageView in
+        imageView.image = UIImage(systemName: "envelope")
+        imageView.tintColor = .black
+    }
     
     private let emailTextField = UITextField().then { textField in
         textField.placeholder = "email@example.com"
@@ -39,7 +42,10 @@ final class LoginViewController: UIViewController {
         textField.placeholder = "Password"
     }
     
-    private let passwordImage = UIImageView(image: UIImage(systemName: "lock"))
+    private let passwordImage = UIImageView().then { imageView in
+        imageView.image = UIImage(systemName: "lock")
+        imageView.tintColor = .black
+    }
     
     private let emailLabelTitle = UILabel().then { label in
         label.text = "Email"
@@ -53,12 +59,12 @@ final class LoginViewController: UIViewController {
     
     private let loginButton = UIButton().then { button in
         button.setTitle("로그인 하기", for: .normal)
-        button.backgroundColor = UIColor(red: 0/255, green: 123/255, blue: 255/255, alpha: 1.0)
+        button.backgroundColor = .buttonColor
     }
     
     private let goSignUpButton = UIButton().then { button in
         button.setTitle("회원가입 하기", for: .normal)
-        button.setTitleColor(UIColor(red: 0/255, green: 123/255, blue: 255/255, alpha: 1.0), for: .normal)
+        button.setTitleColor(.buttonColor, for: .normal)
         button.backgroundColor = .systemBackground
     }
 
@@ -167,7 +173,6 @@ extension LoginViewController {
         goSignUpButton.rx.tap.asDriver()
             .drive(onNext: { [weak self] in
                 guard let self else { return }
-                print("tapped")
                 self.navigationController?.pushViewController(SignUpViewController(), animated: true)
             }).disposed(by: disposeBag)
     }
