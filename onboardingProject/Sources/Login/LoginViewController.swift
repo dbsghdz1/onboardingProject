@@ -15,6 +15,7 @@ import Then
 final class LoginViewController: UIViewController {
     
     private var disposeBag = DisposeBag()
+    private let viewModel = LoginViewModel()
     
     private let loginLabelTitle = UILabel().then { label in
         label.text = "로그인"
@@ -40,6 +41,7 @@ final class LoginViewController: UIViewController {
     
     private let passwordTextField = UITextField().then { textField in
         textField.placeholder = "Password"
+        textField.isSecureTextEntry = true
     }
     
     private let passwordImage = UIImageView().then { imageView in
@@ -67,12 +69,13 @@ final class LoginViewController: UIViewController {
         button.setTitleColor(.buttonColor, for: .normal)
         button.backgroundColor = .systemBackground
     }
-
+    
     
     override func viewDidLoad() {
         super.viewDidLoad()
         configureUI()
         bindUI()
+        addTapGesture()
     }
     
     private func configureUI() {
@@ -164,20 +167,42 @@ final class LoginViewController: UIViewController {
             make.bottom.equalToSuperview().inset(20)
         }
     }
+    
+    private func addTapGesture() {
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(handleTap))
+        view.addGestureRecognizer(tapGesture)
+    }
+    
+    @objc private func handleTap() {
+        view.endEditing(true)
+    }
 }
 
 extension LoginViewController {
     
     private func bindUI() {
         
-        goSignUpButton.rx.tap.asDriver()
+        let input = LoginViewModel.Input(
+            emailText: emailTextField.rx.text.orEmpty.asObservable(),
+            passwordText: passwordTextField.rx.text.orEmpty.asObservable(),
+            loginButtonTap: loginButton.rx.tap,
+            goSignUpButton: goSignUpButton.rx.tap
+        )
+        
+        let output = viewModel.transform(input: input)
+        
+        output.loginResult
+            .drive(onNext: { [weak self] result in
+                print(result)
+                guard let self else { return }
+                let alertMessage = AlertMessageModel(title: "로그인", message: "이메일과 비밀번호가 맞지 않습니다.", yesButtonTitle: nil, cancelButtonTitle: "확인", defaultButtonTitle: nil)
+                result ? self.navigationController?.pushViewController(LoginResultController(), animated: true) : showAlert(alertModel: alertMessage, Action: nil)
+            }).disposed(by: disposeBag)
+        
+        output.signUpButtonTapped
             .drive(onNext: { [weak self] in
                 guard let self else { return }
                 self.navigationController?.pushViewController(SignUpViewController(), animated: true)
             }).disposed(by: disposeBag)
     }
-}
-
-#Preview {
-    LoginViewController()
 }
