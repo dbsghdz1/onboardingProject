@@ -7,15 +7,172 @@
 
 import UIKit
 
-class LoginViewController: UIViewController {
+import RxSwift
+import RxCocoa
+import SnapKit
+import Then
+
+final class LoginViewController: UIViewController {
+    
+    private var disposeBag = DisposeBag()
+    
+    private let loginLabelTitle = UILabel().then { label in
+        label.text = "로그인"
+        label.font = UIFont.boldSystemFont(ofSize: 20)
+    }
+    
+    private let emailView = UIView().then { view in
+        view.backgroundColor = UIColor(red: 239/250, green: 239/250, blue: 239/250, alpha: 1.0)
+    }
+    
+    private let passwordView = UIView().then { view in
+        view.backgroundColor = UIColor(red: 239/250, green: 239/250, blue: 239/250, alpha: 1.0)
+    }
+    
+    private let emailImage = UIImageView(image: UIImage(systemName: "envelope"))
+    
+    private let emailTextField = UITextField().then { textField in
+        textField.placeholder = "email@example.com"
+    }
+    
+    private let passwordTextField = UITextField().then { textField in
+        textField.placeholder = "Password"
+    }
+    
+    private let passwordImage = UIImageView(image: UIImage(systemName: "lock"))
+    
+    private let emailLabelTitle = UILabel().then { label in
+        label.text = "Email"
+        label.font = UIFont.systemFont(ofSize: 13.6, weight: .regular)
+    }
+    
+    private let passwordLabelTitle = UILabel().then { label in
+        label.text = "Password"
+        label.font = UIFont.systemFont(ofSize: 13.6, weight: .regular)
+    }
+    
+    private let loginButton = UIButton().then { button in
+        button.setTitle("로그인 하기", for: .normal)
+        button.backgroundColor = UIColor(red: 0/255, green: 123/255, blue: 255/255, alpha: 1.0)
+    }
+    
+    private let goSignUpButton = UIButton().then { button in
+        button.setTitle("회원가입 하기", for: .normal)
+        button.setTitleColor(UIColor(red: 0/255, green: 123/255, blue: 255/255, alpha: 1.0), for: .normal)
+        button.backgroundColor = .systemBackground
+    }
+
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .blue
-//        
-//        let crud = CoreDataManager.shared
-//        
-//        crud.createUser(name: "하이", email: "윤홍@ㅜㅁㅍ")
-//        crud.fetchAllUsers()
-//        crud.deleteUser(name: "하이")
+        configureUI()
+        bindUI()
     }
+    
+    private func configureUI() {
+        
+        view.backgroundColor = .systemBackground
+        
+        [
+            emailImage,
+            emailTextField
+        ].forEach { emailView.addSubview($0) }
+        
+        [
+            passwordImage,
+            passwordTextField
+        ].forEach { passwordView.addSubview($0) }
+        
+        [
+            loginLabelTitle,
+            emailLabelTitle,
+            emailView,
+            passwordLabelTitle,
+            passwordView,
+            loginButton,
+            goSignUpButton
+        ].forEach { view.addSubview($0) }
+        
+        loginLabelTitle.snp.makeConstraints { make in
+            make.centerX.equalToSuperview()
+            make.top.equalTo(view.safeAreaLayoutGuide).inset(50)
+        }
+        
+        emailLabelTitle.snp.makeConstraints { make in
+            make.top.equalTo(loginLabelTitle.snp.bottom).offset(50)
+            make.leading.equalToSuperview().inset(40)
+        }
+        
+        emailView.snp.makeConstraints { make in
+            make.top.equalTo(emailLabelTitle.snp.bottom).offset(10)
+            make.horizontalEdges.equalToSuperview().inset(40)
+            make.height.equalTo(50)
+        }
+        
+        passwordLabelTitle.snp.makeConstraints { make in
+            make.leading.equalToSuperview().inset(40)
+            make.top.equalTo(emailView.snp.bottom).offset(30)
+        }
+        
+        passwordView.snp.makeConstraints { make in
+            make.horizontalEdges.equalToSuperview().inset(40)
+            make.height.equalTo(50)
+            make.top.equalTo(passwordLabelTitle.snp.bottom).offset(10)
+        }
+        
+        emailImage.snp.makeConstraints { make in
+            make.centerY.equalToSuperview()
+            make.leading.equalToSuperview().inset(10)
+            make.height.equalTo(30)
+            make.width.equalTo(35)
+        }
+        
+        passwordImage.snp.makeConstraints { make in
+            make.centerY.equalToSuperview()
+            make.leading.equalToSuperview().inset(10)
+            make.height.equalTo(30)
+            make.width.equalTo(35)
+        }
+        
+        emailTextField.snp.makeConstraints { make in
+            make.leading.equalTo(emailImage.snp.trailing).offset(10)
+            make.centerY.equalToSuperview()
+            make.trailing.equalToSuperview()
+        }
+        
+        passwordTextField.snp.makeConstraints { make in
+            make.leading.equalTo(emailTextField)
+            make.centerY.equalToSuperview()
+            make.trailing.equalToSuperview()
+        }
+        
+        loginButton.snp.makeConstraints { make in
+            make.top.equalTo(passwordView.snp.bottom).offset(50)
+            make.centerX.equalToSuperview()
+            make.horizontalEdges.equalToSuperview().inset(40)
+            make.height.equalTo(40)
+        }
+        
+        goSignUpButton.snp.makeConstraints { make in
+            make.centerX.equalToSuperview()
+            make.bottom.equalToSuperview().inset(20)
+        }
+    }
+}
+
+extension LoginViewController {
+    
+    private func bindUI() {
+        
+        goSignUpButton.rx.tap.asDriver()
+            .drive(onNext: { [weak self] in
+                guard let self else { return }
+                print("tapped")
+                self.navigationController?.pushViewController(SignUpViewController(), animated: true)
+            }).disposed(by: disposeBag)
+    }
+}
+
+#Preview {
+    LoginViewController()
 }
