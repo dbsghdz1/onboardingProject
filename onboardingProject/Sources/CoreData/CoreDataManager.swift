@@ -16,13 +16,14 @@ class CoreDataManager {
     
     let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
 
-    func createUser(name: String, email: String) {
+    func createUser(name: String, email: String, password: String) {
         guard let entity = NSEntityDescription.entity(forEntityName: "Users", in: context) else { return }
 
         let user = Users(entity: entity, insertInto: context)
         user.id = UUID()
         user.name = name
         user.email = email
+        user.password = password
 
         saveContext()
         print("유저 생성\(name), email: \(email)")
