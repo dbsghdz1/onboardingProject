@@ -29,6 +29,7 @@ final class SignUpViewModel: ViewModelType {
         let passwordText: Observable<String>
         let passwordCheckText: Observable<String>
         let signUpButtonTapped: ControlEvent<Void>
+        let userNickName: Observable<String>
     }
     
     struct Output {
@@ -44,10 +45,8 @@ final class SignUpViewModel: ViewModelType {
             .flatMap { [weak self] email in
                 guard let self else { return Observable.just(false) }
                 if self.emailCheck(email) {
-                    print("이메일 성공")
                     return Observable.just(true)
                 }
-                print("이메일 실패")
                 return Observable.just(false)
             }
             .asDriver(onErrorJustReturn: false)
@@ -67,7 +66,8 @@ final class SignUpViewModel: ViewModelType {
                     input.emailText,
                     input.passwordCheckText,
                     input.passwordText,
-                    input.userName
+                    input.userName,
+                    input.userNickName
                 )
             )
             .flatMapLatest { [weak self] values -> Observable<Bool> in
@@ -76,6 +76,7 @@ final class SignUpViewModel: ViewModelType {
                 let passwordCheck = values.1
                 let password = values.2
                 let userName = values.3
+                let nickName = values.4
                 
                 if !self.emailCheck(email) {
                     return Observable.just(false)
@@ -85,7 +86,7 @@ final class SignUpViewModel: ViewModelType {
                     return Observable.just(false)
                 }
                 
-                self.coreDataManager.createUser(name: userName, email: email, password: password)
+                self.coreDataManager.createUser(name: userName, email: email, password: password, nickName: nickName)
                 return Observable.just(true)
             }
             .asDriver(onErrorJustReturn: false)
