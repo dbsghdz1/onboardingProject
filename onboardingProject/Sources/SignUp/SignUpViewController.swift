@@ -13,9 +13,9 @@ import SnapKit
 import Then
 
 
-final class SignUpViewController: UIViewController {
-    
-    private var disposeBag = DisposeBag()
+final class SignUpViewController: UIViewController, KeyboardReactable {
+    var scrollView: UIScrollView!
+    var disposeBag = DisposeBag()
     private let viewModel = SignUpViewModel()
     
     private let userNameLabel = UILabel().then { label in
@@ -23,6 +23,20 @@ final class SignUpViewController: UIViewController {
     }
     
     private let userNameTextField = UITextField().then { textField in
+        textField.isUserInteractionEnabled = true
+            textField.isEnabled = true
+        textField.layer.borderWidth = 1
+        textField.layer.borderColor = UIColor.textFieldBorderColor.cgColor
+        textField.layer.cornerRadius = 10
+    }
+    
+    private let userNickNameLabel = UILabel().then { label in
+        label.text = "사용자 닉네임"
+    }
+    
+    private let userNickNameTextField = UITextField().then { textField in
+        textField.isUserInteractionEnabled = true
+            textField.isEnabled = true
         textField.layer.borderWidth = 1
         textField.layer.borderColor = UIColor.textFieldBorderColor.cgColor
         textField.layer.cornerRadius = 10
@@ -88,7 +102,8 @@ final class SignUpViewController: UIViewController {
         configureNavigation()
         configureUI()
         bindUI()
-        addTapGesture()
+        self.setTapGesture()
+        self.setKeyboardNotification()
     }
     
     private func configureNavigation() {
@@ -98,6 +113,22 @@ final class SignUpViewController: UIViewController {
     }
     
     private func configureUI() {
+        
+        let contentView = UIView()
+        scrollView = UIScrollView()
+        scrollView.addSubview(contentView)
+        view.addSubview(scrollView)
+        
+        scrollView.snp.makeConstraints { make in
+            make.edges.equalToSuperview()
+        }
+        
+        contentView.snp.makeConstraints { make in
+            make.edges.equalToSuperview()
+            make.width.equalToSuperview()
+            make.bottom.equalTo(scrollView.snp.bottom)
+        }
+        
         view.backgroundColor = .systemBackground
         
         [
@@ -106,6 +137,8 @@ final class SignUpViewController: UIViewController {
             passwordLabel,
             passwordCheckLabel,
             userNameTextField,
+            userNickNameLabel,
+            userNickNameTextField,
             emailTextField,
             emailDescriptionLabel,
             passwordTextField,
@@ -113,12 +146,11 @@ final class SignUpViewController: UIViewController {
             passwordCheckTextField,
             signUpButton,
             passwordCheckDescription
-        ].forEach { view.addSubview($0) }
+        ].forEach { contentView.addSubview($0) }
         
-        // 각 UI 요소의 제약 조건
         userNameLabel.snp.makeConstraints { make in
             make.leading.equalToSuperview().inset(20)
-            make.top.equalTo(view.safeAreaLayoutGuide).offset(30)
+            make.top.equalTo(contentView).offset(30)
         }
         
         userNameTextField.snp.makeConstraints { make in
@@ -127,9 +159,20 @@ final class SignUpViewController: UIViewController {
             make.height.equalTo(40)
         }
         
-        emailLabel.snp.makeConstraints { make in
+        userNickNameLabel.snp.makeConstraints { make in
             make.leading.equalTo(userNameLabel)
             make.top.equalTo(userNameTextField.snp.bottom).offset(25)
+        }
+        
+        userNickNameTextField.snp.makeConstraints { make in
+            make.horizontalEdges.equalToSuperview().inset(20)
+            make.top.equalTo(userNickNameLabel.snp.bottom).offset(10)
+            make.height.equalTo(40)
+        }
+        
+        emailLabel.snp.makeConstraints { make in
+            make.leading.equalTo(userNameLabel)
+            make.top.equalTo(userNickNameTextField.snp.bottom).offset(25)
         }
         
         emailTextField.snp.makeConstraints { make in
@@ -177,18 +220,10 @@ final class SignUpViewController: UIViewController {
         
         signUpButton.snp.makeConstraints { make in
             make.horizontalEdges.equalToSuperview().inset(16)
-            make.bottom.equalTo(view.safeAreaLayoutGuide).inset(30)
+            make.top.equalTo(passwordCheckDescription.snp.bottom).offset(30)
             make.height.equalTo(45)
+            make.bottom.equalTo(contentView).inset(30)
         }
-    }
-    
-    private func addTapGesture() {
-        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(handleTap))
-        view.addGestureRecognizer(tapGesture)
-    }
-    
-    @objc private func handleTap() {
-        view.endEditing(true)
     }
 }
 
@@ -197,15 +232,17 @@ extension SignUpViewController {
     private func bindUI() {
         
         let input = SignUpViewModel.Input(
-            userName: emailTextField.rx.controlEvent(.editingDidEnd)
-                .withLatestFrom(emailTextField.rx.text.orEmpty),
+            userName: userNameTextField.rx.controlEvent(.editingDidEnd)
+                .withLatestFrom(userNameTextField.rx.text.orEmpty),
             emailText: emailTextField.rx.controlEvent(.editingDidEnd)
                 .withLatestFrom(emailTextField.rx.text.orEmpty),
             passwordText: passwordTextField.rx.controlEvent(.editingDidEnd)
                 .withLatestFrom(passwordTextField.rx.text.orEmpty),
             passwordCheckText: passwordCheckTextField.rx.controlEvent(.editingDidEnd)
                 .withLatestFrom(passwordCheckTextField.rx.text.orEmpty),
-            signUpButtonTapped: signUpButton.rx.tap
+            signUpButtonTapped: signUpButton.rx.tap,
+            userNickName: userNickNameTextField.rx.controlEvent(.editingDidEnd)
+                .withLatestFrom(userNickNameTextField.rx.text.orEmpty)
         )
         
         let output = viewModel.transform(input: input)
@@ -252,4 +289,3 @@ extension SignUpViewController {
             }).disposed(by: disposeBag)
     }
 }
-
