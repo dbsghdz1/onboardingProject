@@ -54,7 +54,7 @@ extension MainScreen {
                    let window = sceneDelegate.window {
                     if UserDefaults.standard.bool(forKey: "isLogginUser") {
                         let viewModel = LoginResultViewModel(userEmail: Observable.just(email))
-                        window.rootViewController = UINavigationController(rootViewController: LoginResultController(viewModel: viewModel))
+                        window.rootViewController = LoginResultController(viewModel: viewModel)
                     } else {
                         window.rootViewController = UINavigationController(rootViewController: LoginViewController())
                     }
