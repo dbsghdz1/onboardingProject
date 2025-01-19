@@ -70,7 +70,12 @@ final class LoginViewController: UIViewController {
         button.backgroundColor = .systemBackground
     }
     
-    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        emailTextField.text = ""
+        passwordTextField.text = ""
+    }
+
     override func viewDidLoad() {
         super.viewDidLoad()
         configureUI()
@@ -193,10 +198,10 @@ extension LoginViewController {
         
         output.loginResult
             .drive(onNext: { [weak self] result in
-                print(result)
                 guard let self else { return }
-                let alertMessage = AlertMessageModel(title: "로그인", message: "이메일과 비밀번호가 맞지 않습니다.", yesButtonTitle: nil, cancelButtonTitle: "확인", defaultButtonTitle: nil)
-                result ? self.navigationController?.pushViewController(LoginResultController(), animated: true) : showAlert(alertModel: alertMessage, Action: nil)
+                let alertMessage = AlertMessageModel(title: "로그인", message: "회원이 아닙니다.\n회원가입을 진행해주세요.", yesButtonTitle: nil, cancelButtonTitle: "확인", defaultButtonTitle: nil)
+                let viewModel = LoginResultViewModel(userEmail: emailTextField.rx.text.orEmpty.asObservable())
+                result ? self.navigationController?.pushViewController(LoginResultController(viewModel: viewModel), animated: true) : showAlert(alertModel: alertMessage, Action: nil)
             }).disposed(by: disposeBag)
         
         output.signUpButtonTapped
